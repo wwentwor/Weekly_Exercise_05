@@ -1,6 +1,6 @@
 ---
 title: 'Weekly Exercises #5'
-author: "Put your name here"
+author: "William Wentworth"
 output: 
   html_document:
     keep_md: TRUE
@@ -25,6 +25,7 @@ library(maps)          # for map data
 library(ggmap)         # for mapping points on maps
 library(gplots)        # for col2hex() function
 library(RColorBrewer)  # for color palettes
+library(gifski)
 library(sf)            # for working with spatial data
 library(leaflet)       # for highly customizable mapping
 library(ggthemes)      # for more themes (including theme_map())
@@ -83,11 +84,49 @@ Once your repository is created, you should always open your **project** rather 
 ## Warm-up exercises from tutorial
 
   1. Choose 2 graphs you have created for ANY assignment in this class and add interactivity using the `ggplotly()` function.
+```{r}
+penguin_bill_dist_graph <- ggplot(data = penguins, 
+       mapping = aes(x = bill_length_mm, 
+                     y = bill_depth_mm,
+                     color = species))+
+  geom_point()+
+  theme_minimal() +
+  ggtitle("Bill Depth vs. Bill Length")
+
+ggplotly(penguin_bill_dist_graph)
+
+kids <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-09-15/kids.csv')
+
+kids_graph <- kids %>%
+  filter(variable == "PK12ed") %>%
+  group_by(state) %>%
+  mutate(avg_inf_adj_perchild = mean(inf_adj_perchild, na.rm = TRUE)) %>%
+  ggplot(aes(y = fct_reorder(state, avg_inf_adj_perchild), 
+             x = avg_inf_adj_perchild)) +
+  geom_point()+
+  geom_segment(aes(x = 0,
+                   xend = avg_inf_adj_perchild,
+                   y = fct_reorder(state, avg_inf_adj_perchild),
+                   yend = fct_reorder(state, avg_inf_adj_perchild))) +
+  labs(title = "Avg. Money Spent per Student on PK-12 Education Ranked by State",
+       x = "Avg $ Spent in Thousands per Child on PK-12 Ed. Between 1997-2016 Inflation Adjusted",
+       y = "State")
+
+ggplotly(kids_graph)
+```
   
   2. Use animation to tell an interesting story with the `small_trains` dataset that contains data from the SNCF (National Society of French Railways). These are Tidy Tuesday data! Read more about it [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-02-26).
 
 ```{r}
-
+small_trains %>%
+  mutate(date = make_date(year, month)) %>%
+  filter(service == "National") %>%
+  group_by(year, month) %>%
+  mutate(total_dep = sum(total_num_trips)) %>%
+  ggplot(aes(x = date,
+             y = total_dep)) +
+  geom_line() + 
+  transition_reveal(date)
 ```
 
 ## Garden data
@@ -97,6 +136,33 @@ Once your repository is created, you should always open your **project** rather 
   * Then, for each variety, find the cumulative harvest in pounds.  
   * Use the data you just made to create a static cumulative harvest area plot, with the areas filled with different colors for each vegetable and arranged (HINT: `fct_reorder()`) from most to least harvested (most on the bottom).  
   * Add animation to reveal the plot over date. 
+```{r}
+garden_harvest %>% 
+  filter(vegetable == "tomatoes") %>% 
+  group_by(date, variety) %>% 
+  summarize(daily_harvest_lb = sum(weight)*0.00220462) %>% 
+  ungroup() %>% 
+  complete(variety, date, fill = list(daily_harvest_lb = 0)) %>%
+  group_by(variety) %>%
+  mutate(cum_weight = (cumsum(daily_harvest_lb)),
+         total_weight = sum(daily_harvest_lb)) %>%
+  ggplot(aes(x = date, 
+             y = cum_weight)) +
+  geom_area(aes(fill = fct_reorder(variety, total_weight))) +
+  transition_reveal(date)
+
+#garden_harvest %>%
+#  filter(vegetable == "tomatoes") %>%
+#  group_by(variety, date) %>%
+#  mutate(daily_harvest = sum(weight)*0.00220462) %>%
+#  group_by(variety) %>%
+#  mutate(total_weight = (cumsum(daily_harvest))/453.59237) %>%
+#  ggplot(aes(x = date, 
+#             y = total_weight)) +
+#  geom_area(aes(fill = variety))
+
+  
+```
 
 ## Maps, animation, and movement!
 
@@ -109,6 +175,10 @@ Once your repository is created, you should always open your **project** rather 
   * Show the time in the subtitle.  
   * CHALLENGE: use the `ggimage` package and `geom_image` to add a bike image instead of a red point. You can use [this](https://raw.githubusercontent.com/llendway/animation_and_interactivity/master/bike.png) image. See [here](https://goodekat.github.io/presentations/2019-isugg-gganimate-spooky/slides.html#35) for an example. 
   * Add something of your own! And comment on if you prefer this to the static map and why or why not.
+  
+```{r}
+
+```
   
   5. In this exercise, you get to meet my sister, Heather! She is a proud Mac grad, currently works as a Data Scientist at 3M where she uses R everyday, and for a few years (while still holding a full-time job) she was a pro triathlete. You are going to map one of her races. The data from each discipline of the Ironman 70.3 Pan Am championships, Panama is in a separate file - `panama_swim`, `panama_bike`, and `panama_run`. Create a similar map to the one you created with my cycling data. You will need to make some small changes: 1. combine the files (HINT: `bind_rows()`, 2. make the leading dot a different color depending on the event (for an extra challenge, make it a different image using `geom_image()!), 3. CHALLENGE (optional): color by speed, which you will need to compute on your own from the data. You can read Heather's race report [here](https://heatherlendway.com/2016/02/10/ironman-70-3-pan-american-championships-panama-race-report/). She is also in the Macalester Athletics [Hall of Fame](https://athletics.macalester.edu/honors/hall-of-fame/heather-lendway/184) and still has records at the pool. 
   
