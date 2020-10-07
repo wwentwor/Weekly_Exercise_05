@@ -12,7 +12,7 @@ output:
 
 
 ```{r setup, include=FALSE}
-#knitr::opts_chunk$set(echo = TRUE, error=TRUE, message=FALSE, warning=FALSE)
+knitr::opts_chunk$set(echo = TRUE, error=TRUE, message=FALSE, warning=FALSE)
 ```
 
 ```{r libraries}
@@ -127,7 +127,10 @@ small_trains %>%
   ggplot(aes(x = date,
              y = total_dep)) +
   geom_line() + 
-  transition_reveal(date)
+  transition_reveal(date) +
+  labs(title = "National Train Departures Accross All Stations in France",
+       x = "Date",
+       y = "Total Departures")
 ```
 
 ## Garden data
@@ -150,7 +153,11 @@ garden_harvest %>%
   ggplot(aes(x = date, 
              y = cum_weight)) +
   geom_area(aes(fill = fct_reorder(variety, total_weight))) +
-  transition_reveal(date)
+  transition_reveal(date)+
+  labs(title = "Cumulative Harvest of Tomato Varieties",
+       x = "Date",
+       y = "Cumulative Weight in Pounds",
+       color = "Variety")
 ```
 
 ## Maps, animation, and movement!
@@ -317,5 +324,6 @@ animate(covid_map_animation, nframes = 600, duration = 60)
 
   9. Below, provide a link to your GitHub page with this set of Weekly Exercises. Specifically, if the name of the file is 05_exercises.Rmd, provide a link to the 05_exercises.md file, which is the one that will be most readable on GitHub. If that file isn't very readable, then provide a link to your main GitHub page.
 
+[Here](https://github.com/wwentwor/Weekly_Exercise_05/blob/master/05_exercises.md)
 
 **DID YOU REMEMBER TO UNCOMMENT THE OPTIONS AT THE TOP?**
