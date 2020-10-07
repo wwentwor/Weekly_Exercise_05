@@ -26,6 +26,7 @@ library(ggmap)         # for mapping points on maps
 library(gplots)        # for col2hex() function
 library(RColorBrewer)  # for color palettes
 library(gifski)
+library(ggimage)
 library(sf)            # for working with spatial data
 library(leaflet)       # for highly customizable mapping
 library(ggthemes)      # for more themes (including theme_map())
@@ -177,13 +178,68 @@ garden_harvest %>%
   * Add something of your own! And comment on if you prefer this to the static map and why or why not.
   
 ```{r}
+mallorca <- get_stamenmap(
+    bbox = c(left = 2.28, bottom = 39.41, right = 2.99, top = 39.8), 
+    maptype = "terrain",
+    zoom = 11)
 
+bike_image <- "https://raw.githubusercontent.com/llendway/animation_and_interactivity/master/bike.png"
+
+mallorca_bike_day7_im <- mallorca_bike_day7 %>%
+  mutate(image = bike_image)
+
+ggmap(mallorca) +
+  geom_line(data = mallorca_bike_day7_im,
+             aes(x = lon, 
+                 y = lat, 
+                 color = ele),
+            size = 1) +
+  geom_image(data = mallorca_bike_day7_im,
+             aes(image = image),
+             size = 0.08) +
+  scale_color_viridis_c(option = "viridis") +
+  transition_reveal(time) +
+  theme_map() +
+  labs(title = "Mallorca Bike Trip",
+       subtitle = "Time: {frame_along}",
+       color = "Elevation")
 ```
   
   5. In this exercise, you get to meet my sister, Heather! She is a proud Mac grad, currently works as a Data Scientist at 3M where she uses R everyday, and for a few years (while still holding a full-time job) she was a pro triathlete. You are going to map one of her races. The data from each discipline of the Ironman 70.3 Pan Am championships, Panama is in a separate file - `panama_swim`, `panama_bike`, and `panama_run`. Create a similar map to the one you created with my cycling data. You will need to make some small changes: 1. combine the files (HINT: `bind_rows()`, 2. make the leading dot a different color depending on the event (for an extra challenge, make it a different image using `geom_image()!), 3. CHALLENGE (optional): color by speed, which you will need to compute on your own from the data. You can read Heather's race report [here](https://heatherlendway.com/2016/02/10/ironman-70-3-pan-american-championships-panama-race-report/). She is also in the Macalester Athletics [Hall of Fame](https://athletics.macalester.edu/honors/hall-of-fame/heather-lendway/184) and still has records at the pool. 
   
 ```{r}
+bind_rows(panama_bike, panama_run, panama_swim) -> panama_all
 
+panama <- get_stamenmap(
+    bbox = c(left = -79.57, bottom = 8.91, right = -79.45, top = 9.00), 
+    maptype = "terrain",
+    zoom = 13)
+
+ggmap(panama) +
+  geom_line(data = panama_all,
+             aes(x = lon, 
+                 y = lat),
+            size = 1) +
+  geom_point(data = panama_bike,
+             aes(x = lon, 
+                 y = lat),
+             color = "red", 
+             size = 1.25) +
+  geom_point(data = panama_run,
+             aes(x = lon, 
+                 y = lat),
+             color = "blue", 
+             size = 1.25) +
+  geom_point(data = panama_swim,
+             aes(x = lon, 
+                 y = lat),
+             color = "yellow", 
+             size = 1.25) +
+  scale_color_viridis_c(option = "viridis") +
+  transition_reveal(time) +
+  theme_map() +
+  labs(title = "Ironman 70.3 Pan Am championships",
+       subtitle = "Time: {frame_along}")
 ```
   
 ## COVID-19 data
@@ -196,7 +252,15 @@ garden_harvest %>%
   * Use the `animate()` function to have 200 frames in your animation and make it 30 seconds long. 
   * Comment on what you observe.
   
+```{r}
+
+```
+  
   7. In this exercise you will animate a map of the US, showing how cumulative COVID-19 cases per 10,000 residents has changed over time. This is similar to exercises 11 & 12 from the previous exercises, with the added animation! So, in the end, you should have something like the static map you made there, but animated over all the days. Put date in the subtitle. Comment on what you see.
+  
+```{r}
+
+```
 
 ## Your first `shiny` app
 
