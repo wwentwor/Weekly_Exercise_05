@@ -151,18 +151,6 @@ garden_harvest %>%
              y = cum_weight)) +
   geom_area(aes(fill = fct_reorder(variety, total_weight))) +
   transition_reveal(date)
-
-#garden_harvest %>%
-#  filter(vegetable == "tomatoes") %>%
-#  group_by(variety, date) %>%
-#  mutate(daily_harvest = sum(weight)*0.00220462) %>%
-#  group_by(variety) %>%
-#  mutate(total_weight = (cumsum(daily_harvest))/453.59237) %>%
-#  ggplot(aes(x = date, 
-#             y = total_weight)) +
-#  geom_area(aes(fill = variety))
-
-  
 ```
 
 ## Maps, animation, and movement!
@@ -204,6 +192,8 @@ ggmap(mallorca) +
        subtitle = "Time: {frame_along}",
        color = "Elevation")
 ```
+ 
+ **I think I prefer this to the static map just because it feels more like it's telling a story rather than just depicting information.** 
   
   5. In this exercise, you get to meet my sister, Heather! She is a proud Mac grad, currently works as a Data Scientist at 3M where she uses R everyday, and for a few years (while still holding a full-time job) she was a pro triathlete. You are going to map one of her races. The data from each discipline of the Ironman 70.3 Pan Am championships, Panama is in a separate file - `panama_swim`, `panama_bike`, and `panama_run`. Create a similar map to the one you created with my cycling data. You will need to make some small changes: 1. combine the files (HINT: `bind_rows()`, 2. make the leading dot a different color depending on the event (for an extra challenge, make it a different image using `geom_image()!), 3. CHALLENGE (optional): color by speed, which you will need to compute on your own from the data. You can read Heather's race report [here](https://heatherlendway.com/2016/02/10/ironman-70-3-pan-american-championships-panama-race-report/). She is also in the Macalester Athletics [Hall of Fame](https://athletics.macalester.edu/honors/hall-of-fame/heather-lendway/184) and still has records at the pool. 
   
@@ -274,6 +264,8 @@ covid19 %>%
   
   animate(covid_animation, nframes = 200, duration = 30)
 ```
+ 
+ **At first almost all of the states are shooting up rapidly meaning they have many new covid cases relative to their cumulative cases. But eventually, in mid March/ early April most states start to fall as they start to control the virus's spread. Then, around July, states start to have increases again. Some states have much larger resurgences than others, like Florida, Georgia, Arizona, and California, which climb to the top of the pack, whereas states like Illinois, New York, and New Jersey have resurgences but they aren't nearly as big as others. **
   
   7. In this exercise you will animate a map of the US, showing how cumulative COVID-19 cases per 10,000 residents has changed over time. This is similar to exercises 11 & 12 from the previous exercises, with the added animation! So, in the end, you should have something like the static map you made there, but animated over all the days. Put date in the subtitle. Comment on what you see.
   
@@ -314,6 +306,8 @@ comparecovid_with_2018_pop_est %>%
 
 animate(covid_map_animation, nframes = 600, duration = 60)
 ```
+
+**This graph shows how covid cases per 10,000 people has changed over time. At first every state has only a handful of cases, then in March states like New York start to get much darker, meaning they have a higher density of covid cases. Other states like California, Arizona, Florida, and Texas don't start to get very dark until July. By the end of the time frame, almost every state has gotten much much darker than they initially started out.**  
 
 ## Your first `shiny` app
 
