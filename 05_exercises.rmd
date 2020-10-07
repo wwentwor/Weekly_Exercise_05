@@ -218,7 +218,8 @@ panama <- get_stamenmap(
 ggmap(panama) +
   geom_line(data = panama_all,
              aes(x = lon, 
-                 y = lat),
+                 y = lat,
+                 color = ele),
             size = 1) +
   geom_point(data = panama_bike,
              aes(x = lon, 
@@ -239,7 +240,8 @@ ggmap(panama) +
   transition_reveal(time) +
   theme_map() +
   labs(title = "Ironman 70.3 Pan Am championships",
-       subtitle = "Time: {frame_along}")
+       subtitle = "Time: {frame_along}",
+       color = "Elevation")
 ```
   
 ## COVID-19 data
@@ -253,13 +255,64 @@ ggmap(panama) +
   * Comment on what you observe.
   
 ```{r}
-
+covid19 %>%
+  group_by(state, date) %>%
+  summarise(total_cases = cumsum(cases)) %>%
+  mutate(lag_7 = lag(total_cases, n = 7, replace_na(0)),
+         new_cases_7day = (total_cases - lag_7)) %>%
+  filter(total_cases >= 20) %>%
+  ggplot(aes(x = total_cases,
+             y = new_cases_7day)) +
+  scale_x_log10(labels = scales::comma) +
+  scale_y_log10(labels = scales::comma) +
+  geom_point(aes(group = state)) +
+  geom_path(aes(group = state)) +
+  geom_text(aes(label = state), check_overlap = TRUE) +
+  transition_reveal(date) +
+  labs(title = "Trajectory of US COVID-19 Cases",
+       subtitle = "Date: {frame_along}")-> covid_animation
+  
+  animate(covid_animation, nframes = 200, duration = 30)
 ```
   
   7. In this exercise you will animate a map of the US, showing how cumulative COVID-19 cases per 10,000 residents has changed over time. This is similar to exercises 11 & 12 from the previous exercises, with the added animation! So, in the end, you should have something like the static map you made there, but animated over all the days. Put date in the subtitle. Comment on what you see.
   
 ```{r}
+census_pop_est_2018 <- read_csv("https://www.dropbox.com/s/6txwv3b4ng7pepe/us_census_2018_state_pop_est.csv?dl=1") %>%
+  separate(state, into = c("dot","state"), extra = "merge") %>% 
+  select(-dot) %>%
+  mutate(state = str_to_lower(state))
 
+states_map <- map_data("state")
+
+comparecovid19 <- covid19 %>%
+  filter(!state == c("Northern Mariana Islands","Alaska")) %>%
+  filter(!state == "Virgin Islands") %>%
+  filter(!state == "Guam") %>%
+  filter(!state == "Hawaii") %>%
+  filter(!state == "Puerto Rico") %>%
+  mutate(state_name = str_to_lower(state))
+
+comparecovid_with_2018_pop_est <-
+  comparecovid19 %>% 
+  left_join(census_pop_est_2018,
+            by = c("state_name" = "state")) %>% 
+  mutate(`Cases per 10000 People` = (cases/est_pop_2018)*10000)
+
+comparecovid_with_2018_pop_est %>%
+  ggplot() +
+  geom_map(map = states_map,
+           aes(map_id = state_name,
+               fill = `Cases per 10000 People`,
+               group = date)) +
+  scale_fill_gradient(low="cadetblue1", high="midnightblue") +
+  expand_limits(x = states_map$long, y = states_map$lat) + 
+  transition_states(date) +
+  theme_map() +  
+  labs(title = "Covid Cases per 10,000 People by State",
+       subtitle = "Date: {closest_state}") -> covid_map_animation
+
+animate(covid_map_animation, nframes = 600, duration = 60)
 ```
 
 ## Your first `shiny` app
